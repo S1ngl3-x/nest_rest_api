@@ -1,32 +1,31 @@
-import { Injectable } from '@nestjs/common';
-
-export type User = any;
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Userdetail } from './schemas/userdetailSchema';
+import { PaginateModel } from 'mongoose';
+import { CreateUserdetailDto } from './dto/create-userdetail.dto';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[];
+  constructor(
+    @InjectModel(Userdetail.name)
+    private readonly userdetailPaginateModel: PaginateModel<Userdetail>,
+  ) {}
 
-  constructor() {
-    this.users = [
-      {
-        userId: 1,
-        username: 'john',
-        password: 'changeme',
-      },
-      {
-        userId: 2,
-        username: 'chris',
-        password: 'secret',
-      },
-      {
-        userId: 3,
-        username: 'maria',
-        password: 'guess',
-      },
-    ];
+  async create(createUserdetailDto: CreateUserdetailDto): Promise<Userdetail> {
+    const createdUserdetail = new this.userdetailPaginateModel(
+      createUserdetailDto,
+    );
+    return createdUserdetail.save();
   }
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find(user => user.username === username);
+  async findById(id: string): Promise<Userdetail> {
+    // todo fix - this is really bad "nullpointer" solution
+    const userdetail = this.userdetailPaginateModel.findOne({ _id: id });
+    if (userdetail) return userdetail;
+    throw new HttpException('Nonexistent user', HttpStatus.NOT_FOUND);
+  }
+
+  async findByEmail(email: string): Promise<Userdetail> {
+    return this.userdetailPaginateModel.findOne({ email: email });
   }
 }
