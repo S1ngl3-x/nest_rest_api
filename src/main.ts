@@ -1,13 +1,19 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ExcludeNullPointerInterceptor } from './utils/interceptors/excludeNullPointer.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe());
+
+  // to add interceptor globally
+  // TODO uncomment the NullPointerInterceptor later, it is annoying during api testing
+  // app.useGlobalInterceptors(new ExcludeNullPointerInterceptor());
+  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const options = new DocumentBuilder()
     .setTitle('Items example')

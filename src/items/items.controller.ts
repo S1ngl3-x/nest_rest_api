@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  SerializeOptions,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { ExceptionLoggerFilter } from '../utils/exceptionFilters/exceptionLogger
 import { FindOneParams } from '../utils/validators/findOneParams';
 
 @Controller('items')
+// @SerializeOptions({ strategy: 'excludeAll' })
 export class ItemsController {
   constructor(private itemsService: ItemsService) {}
 

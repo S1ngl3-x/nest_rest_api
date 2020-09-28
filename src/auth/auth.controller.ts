@@ -7,6 +7,10 @@ import {
   UseGuards,
   Res,
   Get,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  SerializeOptions,
+  Header,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserdetailDto } from '../users/dto/create-userdetail.dto';
@@ -14,8 +18,11 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { RequestWithUserdetail } from './interfaces/requestWithUserdetail.interface';
 import { Response } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Userdetail } from '../users/schemas/userdetailSchema';
 
 @Controller('auth')
+// @UseInterceptors(ClassSerializerInterceptor) // add serializer per controller
+// @SerializeOptions({ strategy: 'excludeAll' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -27,17 +34,13 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(
-    @Req() request: RequestWithUserdetail,
-    @Res() response: Response,
-  ) {
+  async login(@Req() request: RequestWithUserdetail): Promise<Userdetail> {
     const { user } = request;
     const cookie = this.authService.getCookieWithJwtToken(user._id);
-    response.setHeader('Set-Cookie', cookie);
+    request.res.setHeader('Set-Cookie', cookie);
     // todo remove all delete user.password
-    // delete user.password;
-    user.password = undefined;
-    return response.send(user);
+    // user.password = undefined;
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
