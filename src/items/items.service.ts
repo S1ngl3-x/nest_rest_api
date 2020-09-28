@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, PaginateResult } from 'mongoose';
 import { Item } from './schemas/item.schema';
 import { CreateItemDto } from './dto/create-item.dto';
+import { throwError } from 'rxjs';
+import { ItemNotFoundException } from './exceptions/itemNotFound.exception';
 
 @Injectable()
 export class ItemsService {
@@ -28,7 +30,14 @@ export class ItemsService {
   }
 
   async findOne(id: string): Promise<Item> {
-    return this.itemModel.findOne({ _id: id });
+    const item = this.itemModel
+      .findOne({ _id: id })
+      // .orFail(new HttpException('Nonexistent item', HttpStatus.NOT_FOUND));
+      .orFail(new ItemNotFoundException(id));
+
+    console.log('jsem tady');
+    if (item) return item;
+    throw new HttpException('Nonexistent item', HttpStatus.NOT_FOUND);
   }
 
   async update(id: string, createItemDto: CreateItemDto): Promise<Item> {

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -13,6 +14,7 @@ import { ItemsService } from './items.service';
 import { Item } from './schemas/item.schema';
 import { PaginateResult } from 'mongoose';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ExceptionLoggerFilter } from '../utils/exceptionFilters/exceptionLogger.filter';
 
 @Controller('items')
 export class ItemsController {
@@ -35,6 +37,7 @@ export class ItemsController {
   }
 
   @Get(':id')
+  @UseFilters(ExceptionLoggerFilter) // explicitly select filter to be used
   async findOne(@Param('id') id): Promise<Item> {
     return this.itemsService.findOne(id);
   }
