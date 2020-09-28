@@ -15,6 +15,7 @@ import { Item } from './schemas/item.schema';
 import { PaginateResult } from 'mongoose';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ExceptionLoggerFilter } from '../utils/exceptionFilters/exceptionLogger.filter';
+import { FindOneParams } from '../utils/validators/findOneParams';
 
 @Controller('items')
 export class ItemsController {
@@ -38,7 +39,7 @@ export class ItemsController {
 
   @Get(':id')
   @UseFilters(ExceptionLoggerFilter) // explicitly select filter to be used
-  async findOne(@Param('id') id): Promise<Item> {
+  async findOne(@Param() { id }: FindOneParams): Promise<Item> {
     return this.itemsService.findOne(id);
   }
 
